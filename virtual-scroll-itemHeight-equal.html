@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body, #app {
+      height: 100%;
+      width: 100%;
+    }
+    .content {
+      position: relative;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .real-content {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+    }
+    .item {
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="content">
+      <div class="virtual-content"></div>
+      <div class="real-content"></div>
+    </div>
+  </div>
+  <script>
+    const content = document.getElementsByClassName('content')[0]
+    const virtualContent = document.getElementsByClassName('virtual-content')[0]
+    const realContent = document.getElementsByClassName('real-content')[0]
+
+    const screenClientHeight = document.documentElement.clientHeight
+    for (let i = 0; i < 29; i++) {
+      const el = document.createElement('div')
+      el.className = 'item'
+      el.innerHTML = i + 1
+      virtualContent.appendChild(el)
+    }
+
+    var children = []
+    var itemHeight = 0
+    var size = 0
+    var start = 0
+    var end = 0
+    Promise.resolve().then(() => {
+      const height = virtualContent.clientHeight
+      virtualContent.style.height = height + 'px'
+      itemHeight = height / 29
+      children = Array.from(virtualContent.children)
+      size = Math.ceil(screenClientHeight / itemHeight)
+      virtualContent.innerHTML = ''
+      getContent()
+    })
+
+    function getContent() {
+      realContent.innerHTML = ''
+      const scrollTop = content.scrollTop
+      start = ~~(scrollTop / itemHeight)
+      end =  start + size + 1
+      const list = children.slice(start, end)
+      list.map(el => realContent.appendChild(el))
+      realContent.style.transform = `translateY(${start * itemHeight}px)`
+    }
+
+    content.addEventListener('scroll', (e) => {
+      getContent()
+    })
+
+  </script>
+</body>
+</html>
